@@ -1,0 +1,30 @@
+INSTALACIÓN PASO A PASO
+
+1. Abra el Google Sheets que desea utilizar para el presupuesto.
+2. Ingrese a Extensiones > Apps Script.
+3. Borre el código anterior y pegue todo el contenido de apps-script/Code.gs.
+4. Guarde el proyecto.
+5. En la lista de funciones, seleccione configurarPresupuesto y pulse Ejecutar.
+6. Autorice el proyecto con su cuenta. Esto creará las cuatro hojas necesarias.
+7. Ingrese a Implementar > Nueva implementación.
+8. Tipo: Aplicación web.
+9. Ejecutar como: usted.
+10. Quién tiene acceso: cualquier persona.
+11. Pulse Implementar y copie la dirección que termina en /exec.
+12. Abra js/config.js y coloque esa dirección en API_URL.
+13. Publique index.html, css, js y assets en GitHub Pages como en el proyecto original.
+
+SI YA UTILIZA LA MISMA IMPLEMENTACIÓN DEL PROYECTO ANTERIOR
+
+Reemplace Code.gs, ejecute configurarPresupuesto y cree una NUEVA VERSIÓN desde
+Implementar > Administrar implementaciones > Editar. Si la URL /exec no cambia,
+puede conservar js/config.js tal como está.
+
+PRUEBA RECOMENDADA
+
+1. Registre un ingreso.
+2. Registre un servicio.
+3. Registre un pago de casa.
+4. Registre un ahorro.
+5. Compruebe el remanente del mes.
+6. Abra Balance anual y confirme que los valores aparezcan en el mes correcto.
