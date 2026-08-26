@@ -38,17 +38,31 @@ function initAccess() {
   if (sessionStorage.getItem("presupuesto_access") === "ok") unlockApp();
 }
 
-function validatePassword(e) {
+async function validatePassword(e) {
   e.preventDefault();
-  const password = String(CONFIG.APP_PASSWORD || "1234");
-  if ($("passwordInput").value === password) {
+  const btn = $("loginForm").querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "Validando...";
+  try {
+    const result = await API.validarAcceso($("passwordInput").value);
+    if (!result.accesoActivo) {
+      toast("El acceso está apagado desde Google Sheets", true);
+      return;
+    }
+    if (!result.autorizado) {
+      toast("Contraseña incorrecta", true);
+      $("passwordInput").value = "";
+      $("passwordInput").focus();
+      return;
+    }
     sessionStorage.setItem("presupuesto_access", "ok");
     unlockApp();
-    return;
+  } catch (err) {
+    toast(err.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Entrar al dashboard";
   }
-  toast("Contraseña incorrecta", true);
-  $("passwordInput").value = "";
-  $("passwordInput").focus();
 }
 
 function unlockApp() {

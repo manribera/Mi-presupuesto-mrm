@@ -25,6 +25,9 @@ const API = {
   guardarIngresoGeneral(registro) {
     return this.request("guardarIngresoGeneral", { registro });
   },
+  validarAcceso(password) {
+    return this.request("validarAcceso", { password });
+  },
   guardar(tipo, movimiento) {
     return this.request("guardarMovimiento", { tipo, movimiento });
   }
