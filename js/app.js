@@ -44,7 +44,7 @@ async function validatePassword(e) {
   btn.disabled = true;
   btn.textContent = "Validando...";
   try {
-    const result = await window.API.validarAcceso($("passwordInput").value);
+    const result = await API.validarAcceso($("passwordInput").value);
     if (!result.accesoActivo) {
       toast("El acceso está apagado desde Google Sheets", true);
       return;
@@ -98,7 +98,7 @@ function refreshActiveView() {
 async function loadSummary() {
   loading(true);
   try {
-    const data = await window.API.resumen(state.month);
+    const data = await API.resumen(state.month);
     state.summary = data;
     paintSummary(data);
   } catch (e) {
@@ -152,7 +152,7 @@ function paintSection(prefix, rows, total) {
 async function loadGeneral() {
   loading(true);
   try {
-    const d = await window.API.ingresoGeneral();
+    const d = await API.ingresoGeneral();
     state.general = d;
     paintGeneral(d);
   } catch (e) {
@@ -173,7 +173,7 @@ function paintGeneral(d) {
 
 async function loadAnnual() {
   try {
-    const d = await window.API.anual(state.year);
+    const d = await API.anual(state.year);
     setText("annualIncome", money(d.totales.ingresos));
     setText("annualOut", money(d.totales.egresos));
     setText("annualBalance", money(d.totales.remanente));
@@ -238,7 +238,7 @@ async function saveMovement(e) {
   btn.disabled = true;
   btn.textContent = "Guardando...";
   try {
-    await window.API.guardar($("movementType").value, {
+    await API.guardar($("movementType").value, {
       fecha: $("movementDate").value,
       concepto: $("movementConcept").value,
       monto: Number($("movementAmount").value),
@@ -265,7 +265,7 @@ async function saveGeneral(e) {
   btn.disabled = true;
   btn.textContent = "Guardando...";
   try {
-    await window.API.guardarIngresoGeneral({
+    await API.guardarIngresoGeneral({
       fecha: $("generalDate").value,
       concepto: $("generalConcept").value,
       montoAnterior: Number($("generalBefore").value),
