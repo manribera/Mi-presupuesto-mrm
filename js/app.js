@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("todayLabel").textContent = now.toLocaleDateString("es-CR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   fillYears();
   bind();
+  setupHistoryFilters();
   initAccess();
 });
 
@@ -81,7 +82,49 @@ function showView(name) {
   $("pageTitle").textContent = titles[name];
   $("sidebar").classList.remove("open");
   if (name === "anual") loadAnnual();
+  else if (["ingresos","servicios","casa","transferencias","ahorros"].includes(name)) loadHistory(name);
   else if (!state.summary) loadSummary();
+}
+
+const historyTypes = { ingresos:"INGRESOS", servicios:"SERVICIOS", casa:"PAGOS_CASA", transferencias:"TRANSFERENCIAS", ahorros:"AHORROS" };
+
+function setupHistoryFilters() {
+  Object.keys(historyTypes).forEach(name => {
+    const summary = $(name + "Summary");
+    if (!summary || $(name + "HistoryFilters")) return;
+    const wrap = document.createElement("div");
+    wrap.id = name + "HistoryFilters";
+    wrap.className = "history-filters";
+    wrap.innerHTML = `<label>Año<select data-history-year="${name}"></select></label><label>Mes<select data-history-month="${name}"><option value="TODOS">Todos los meses</option>${["01","02","03","04","05","06","07","08","09","10","11","12"].map((m,i)=>`<option value="${m}">${["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"][i]}</option>`).join("")}</select></label><button class="secondary" data-history-load="${name}">Aplicar filtro</button><div class="history-compare" id="${name}Compare"></div>`;
+    summary.parentNode.insertBefore(wrap, summary);
+    const year = wrap.querySelector("select[data-history-year]");
+    for (let y = new Date().getFullYear(); y >= 2020; y--) year.add(new Option(y,y));
+    wrap.querySelector("[data-history-month]").value = state.month.slice(5,7);
+    wrap.querySelector("button").onclick = () => loadHistory(name);
+  });
+}
+
+async function loadHistory(name) {
+  const type = historyTypes[name];
+  const year = document.querySelector(`[data-history-year="${name}"]`).value;
+  const month = document.querySelector(`[data-history-month="${name}"]`).value;
+  try {
+    const current = await API.request("obtenerHistorico", {tipo:type, anio:year, mes:month});
+    let previous = {total:0};
+    if (month !== "TODOS") {
+      const date = new Date(Number(year), Number(month)-2, 1);
+      previous = await API.request("obtenerHistorico", {tipo:type, anio:date.getFullYear(), mes:String(date.getMonth()+1).padStart(2,"0")});
+    }
+    renderHistory(name, current, previous, month);
+  } catch (e) { toast(e.message,true); }
+}
+
+function renderHistory(name, data, previous, month) {
+  const difference = data.total - previous.total;
+  const percent = previous.total ? difference / previous.total * 100 : 0;
+  $(name + "Summary").innerHTML = `<article><span>Total del periodo</span><strong>${money(data.total)}</strong><span>${plural(data.cantidad)}</span></article>`;
+  $(name + "Compare").innerHTML = month === "TODOS" ? "Histórico anual" : `<span>Frente al mes anterior</span><strong class="${difference >= 0 ? "positive" : "negative-text"}">${difference >= 0 ? "+" : ""}${money(difference)} · ${percent.toFixed(1)}%</strong>`;
+  $(name + "Table").innerHTML = data.filas.length ? `<table class="data-table"><thead><tr><th>Fecha</th><th>Categoría</th><th>Concepto</th>${name === "transferencias" ? "<th>Destinatario</th>" : ""}<th>Periodo</th><th>Método</th><th>Monto</th><th>Observaciones</th></tr></thead><tbody>${data.filas.map(r=>`<tr><td>${esc(r.FECHA)}</td><td>${esc(r.CATEGORIA || "-")}</td><td><strong>${esc(r.CONCEPTO)}</strong></td>${name === "transferencias" ? `<td>${esc(r.DESTINATARIO || "-")}</td>` : ""}<td>${esc(r.FRECUENCIA || "-")}</td><td>${esc(r.METODO || "-")}</td><td class="amount">${money(r.MONTO)}</td><td>${esc(r.OBSERVACIONES || "-")}</td></tr>`).join("")}</tbody></table>` : '<div class="empty">No hay registros para el periodo seleccionado.</div>';
 }
 
 function refreshActiveView() {
@@ -171,16 +214,36 @@ function paintGeneral(d) {
 
 async function loadAnnual() {
   try {
-    const d = await API.anual(state.year);
+    const [d, servicios, casa, transferencias, ahorros] = await Promise.all([
+      API.anual(state.year),
+      API.request("obtenerHistorico",{tipo:"SERVICIOS",anio:state.year,mes:"TODOS"}),
+      API.request("obtenerHistorico",{tipo:"PAGOS_CASA",anio:state.year,mes:"TODOS"}),
+      API.request("obtenerHistorico",{tipo:"TRANSFERENCIAS",anio:state.year,mes:"TODOS"}),
+      API.request("obtenerHistorico",{tipo:"AHORROS",anio:state.year,mes:"TODOS"})
+    ]);
     setText("annualIncome", money(d.totales.ingresos));
     setText("annualOut", money(d.totales.egresos));
     setText("annualBalance", money(d.totales.remanente));
     $("annualBalanceCard").className = d.totales.remanente >= 0 ? "good" : "bad";
     paintAnnualChart(d.meses);
+    paintAnnualTrend(d.meses);
+    paintAnnualDistribution([servicios,casa,transferencias,ahorros]);
     paintAnnualTable(d.meses);
   } catch (e) {
     toast(e.message, true);
   }
+}
+
+function paintAnnualTrend(rows) {
+  const max = Math.max(1,...rows.map(r=>Math.abs(r.remanente)));
+  $("annualTrend").innerHTML = rows.map((r,i)=>`<div class="trend-item"><span>${r.nombre.slice(0,3)}</span><div class="trend-axis"><i class="${r.remanente >= 0 ? "up" : "down"}" style="height:${Math.max(4,Math.abs(r.remanente)/max*90)}%"></i></div><strong class="${r.remanente >= 0 ? "positive" : "negative-text"}">${money(r.remanente)}</strong></div>`).join("");
+}
+
+function paintAnnualDistribution(groups) {
+  const labels = ["Servicios","Pagos de casa","Transferencias","Ahorros"];
+  const colors = ["#d99416","#2868d8","#0f8b8d","#6c55c7"];
+  const total = groups.reduce((s,g)=>s+g.total,0);
+  $("annualDistribution").innerHTML = groups.map((g,i)=>{ const p=total ? g.total/total*100 : 0; return `<div class="dist-item"><div class="dist-line"><span>${labels[i]}</span><strong>${money(g.total)} · ${p.toFixed(1)}%</strong></div><div class="bar"><i style="width:${p}%;background:${colors[i]}"></i></div></div>`; }).join("");
 }
 
 function paintAnnualChart(rows) {
