@@ -1,6 +1,7 @@
 const API = {
   async request(action, payload = {}) {
-    if (!CONFIG.API_URL || CONFIG.API_URL.includes"https://script.google.com/macros/s/AKfycbyM5MYDbxRK_nFLRGemCJI4ISFokW4qEHqvMTfF7z3Uv9dzxQ8pD6pAfGa6a6gQIC32/exec" {
+    if (!CONFIG.API_URL || CONFIG.API_URL.includes ("PEGAR_AQUI") 
+    ) }
       throw new Error("Configura la URL de Apps Script en js/config.js");
     }
     const r = await fetch(CONFIG.API_URL, {
