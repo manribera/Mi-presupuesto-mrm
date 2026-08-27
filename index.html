@@ -33,10 +33,10 @@
     </div>
     <nav>
       <button class="nav-btn active" data-view="dashboard"><span>⌂</span> Resumen</button>
-      <button class="nav-btn" data-view="general"><span>⇅</span> Ingreso general</button>
       <button class="nav-btn" data-view="ingresos"><span>↗</span> Ingresos</button>
       <button class="nav-btn" data-view="servicios"><span>◉</span> Servicios</button>
       <button class="nav-btn" data-view="casa"><span>⌂</span> Pagos de casa</button>
+      <button class="nav-btn" data-view="transferencias"><span>⇢</span> Transferencias varias</button>
       <button class="nav-btn" data-view="ahorros"><span>◇</span> Ahorros</button>
       <button class="nav-btn" data-view="anual"><span>▥</span> Balance anual</button>
     </nav>
@@ -60,6 +60,7 @@
         <article class="kpi saving"><div class="kpi-icon">◇</div><div><span>Ahorros</span><strong id="kpiAhorros">₡0</strong><small id="kpiAhorrosCount">0 registros</small></div></article>
         <article class="kpi service"><div class="kpi-icon">◉</div><div><span>Servicios</span><strong id="kpiServicios">₡0</strong><small id="kpiServiciosCount">0 registros</small></div></article>
         <article class="kpi home"><div class="kpi-icon">⌂</div><div><span>Pagos de casa</span><strong id="kpiCasa">₡0</strong><small id="kpiCasaCount">0 registros</small></div></article>
+        <article class="kpi service"><div class="kpi-icon">⇢</div><div><span>Transferencias</span><strong id="kpiTransferencias">₡0</strong><small id="kpiTransferenciasCount">0 registros</small></div></article>
       </div>
       <div class="dashboard-grid">
         <article class="panel"><div class="panel-head"><div><span class="eyebrow">DISTRIBUCIÓN</span><h2>Uso de los ingresos</h2></div></div><div id="distribution" class="distribution"></div></article>
@@ -67,33 +68,20 @@
       </div>
     </section>
 
-    <section id="generalView" class="view">
-      <div class="section-intro">
-        <div><span class="eyebrow">CONTROL DE AUMENTOS</span><h2>Ingreso general</h2><p>Registra el ingreso base y compara aumentos por fecha.</p></div>
-        <button class="primary" id="addGeneralBtn">+ Registrar aumento</button>
-      </div>
-      <div class="annual-kpis">
-        <article><span>Ingreso actual</span><strong id="generalActual">₡0</strong></article>
-        <article><span>Aumento acumulado</span><strong id="generalAumento">₡0</strong></article>
-        <article><span>Variación acumulada</span><strong id="generalPorcentaje">0%</strong></article>
-      </div>
-      <div class="panel table-panel"><div id="generalTable"></div></div>
-    </section>
-
-    <section id="ingresosView" class="view"><div class="section-intro"><div><span class="eyebrow">ENTRADAS DE DINERO</span><h2>Ingresos</h2><p>Registra ingresos diarios o quincenales.</p></div><button class="primary add-btn" data-type="INGRESOS">+ Nuevo ingreso</button></div><div id="ingresosSummary" class="mini-summary"></div><div class="panel table-panel"><div id="ingresosTable"></div></div></section>
+    <section id="ingresosView" class="view"><div class="section-intro"><div><span class="eyebrow">ENTRADAS DE DINERO</span><h2>Ingresos</h2><p>Registra ingresos diarios o consolidados mensualmente.</p></div><button class="primary add-btn" data-type="INGRESOS">+ Nuevo ingreso</button></div><div id="ingresosSummary" class="mini-summary"></div><div class="panel table-panel"><div id="ingresosTable"></div></div></section>
     <section id="serviciosView" class="view"><div class="section-intro"><div><span class="eyebrow">GASTOS RECURRENTES</span><h2>Servicios</h2><p>Agua, electricidad, internet, teléfono y otros servicios.</p></div><button class="primary add-btn" data-type="SERVICIOS">+ Registrar servicio</button></div><div id="serviciosSummary" class="mini-summary"></div><div class="panel table-panel"><div id="serviciosTable"></div></div></section>
     <section id="casaView" class="view"><div class="section-intro"><div><span class="eyebrow">COMPROMISOS DEL HOGAR</span><h2>Pagos de casa</h2><p>Alquiler, alimentación, préstamos y demás gastos del hogar.</p></div><button class="primary add-btn" data-type="PAGOS_CASA">+ Registrar pago</button></div><div id="casaSummary" class="mini-summary"></div><div class="panel table-panel"><div id="casaTable"></div></div></section>
+    <section id="transferenciasView" class="view"><div class="section-intro"><div><span class="eyebrow">DINERO ENVIADO</span><h2>Transferencias varias</h2><p>Registra transferencias bancarias y SINPE enviados, con destinatario y observaciones.</p></div><button class="primary add-btn" data-type="TRANSFERENCIAS">+ Registrar transferencia</button></div><div id="transferenciasSummary" class="mini-summary"></div><div class="panel table-panel"><div id="transferenciasTable"></div></div></section>
     <section id="ahorrosView" class="view"><div class="section-intro"><div><span class="eyebrow">RESERVAS</span><h2>Ahorros</h2><p>Dinero separado para metas, emergencias o inversión.</p></div><button class="primary add-btn" data-type="AHORROS">+ Registrar ahorro</button></div><div id="ahorrosSummary" class="mini-summary"></div><div class="panel table-panel"><div id="ahorrosTable"></div></div></section>
     <section id="anualView" class="view"><div class="section-intro"><div><span class="eyebrow">VISTA DE 12 MESES</span><h2>Balance anual</h2><p>Comparación mensual de ingresos, egresos y remanente.</p></div><select id="yearSelect"></select></div><div class="annual-kpis"><article><span>Ingresos del año</span><strong id="annualIncome">₡0</strong></article><article><span>Total destinado</span><strong id="annualOut">₡0</strong></article><article id="annualBalanceCard"><span>Remanente anual</span><strong id="annualBalance">₡0</strong></article></div><div class="panel chart-panel"><div class="panel-head"><div><span class="eyebrow">COMPARACIÓN MENSUAL</span><h2>Ingresos y egresos</h2></div></div><div id="annualChart" class="annual-chart"></div></div><div class="panel table-panel"><div id="annualTable"></div></div></section>
   </main>
 </div>
 
-<div id="modal" class="modal" aria-hidden="true"><div class="modal-card"><button id="modalClose" class="modal-close">×</button><span class="eyebrow">NUEVO REGISTRO</span><h2 id="modalTitle">Registrar movimiento</h2><form id="movementForm"><input id="movementType" type="hidden"><div class="form-grid"><label>Fecha<input id="movementDate" type="date" required></label><label>Periodo<select id="movementFrequency"><option value="DIARIO">Diario</option><option value="QUINCENAL">Quincenal</option><option value="EXTRAORDINARIO">Extraordinario</option></select></label><label class="full">Concepto<input id="movementConcept" type="text" required placeholder="Ejemplo: Salario, electricidad o alquiler"></label><label>Monto (₡)<input id="movementAmount" type="number" min="0" step="1" required></label><label>Método<select id="movementMethod"><option>Efectivo</option><option>Transferencia</option><option>SINPE Móvil</option><option>Tarjeta</option><option>Débito automático</option><option>Otro</option></select></label><label class="full">Observaciones<textarea id="movementNotes" rows="3" placeholder="Opcional"></textarea></label></div><button id="saveMovement" class="primary full-btn" type="submit">Guardar movimiento</button></form></div></div>
-<div id="generalModal" class="modal" aria-hidden="true"><div class="modal-card"><button id="generalClose" class="modal-close">×</button><span class="eyebrow">INGRESO GENERAL</span><h2>Registrar aumento</h2><form id="generalForm"><div class="form-grid"><label>Fecha<input id="generalDate" type="date" required></label><label>Concepto<input id="generalConcept" type="text" required placeholder="Ejemplo: Salario base"></label><label>Monto anterior (₡)<input id="generalBefore" type="number" min="0" step="1" required></label><label>Monto nuevo (₡)<input id="generalAfter" type="number" min="0" step="1" required></label><label class="full">Observaciones<textarea id="generalNotes" rows="3" placeholder="Opcional"></textarea></label></div><button id="saveGeneral" class="primary full-btn" type="submit">Guardar ingreso general</button></form></div></div>
+<div id="modal" class="modal" aria-hidden="true"><div class="modal-card"><button id="modalClose" class="modal-close">×</button><span class="eyebrow">NUEVO REGISTRO</span><h2 id="modalTitle">Registrar movimiento</h2><form id="movementForm"><input id="movementType" type="hidden"><div class="form-grid"><label>Fecha<input id="movementDate" type="date" required></label><label>Periodo<select id="movementFrequency"></select></label><label>Categoría<select id="movementCategory"></select></label><label id="destinationField" hidden>Destinatario<input id="movementDestination" type="text" placeholder="Persona o entidad"></label><label class="full">Concepto<input id="movementConcept" type="text" required placeholder="Detalle del movimiento"></label><label>Monto (₡)<input id="movementAmount" type="number" min="0" step="1" required></label><label>Método<select id="movementMethod"><option>Efectivo</option><option>Transferencia bancaria</option><option>SINPE Móvil</option><option>Tarjeta</option><option>Débito automático</option><option>Otro</option></select></label><label class="full">Observaciones<textarea id="movementNotes" rows="3" placeholder="Opcional"></textarea></label></div><button id="saveMovement" class="primary full-btn" type="submit">Guardar movimiento</button></form></div></div>
 <div id="overlay" class="overlay"></div>
 
-<script src="js/config.js?v=6"></script>
-<script src="js/api.js?v=6"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
