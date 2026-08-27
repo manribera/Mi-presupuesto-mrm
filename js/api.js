@@ -1,5 +1,5 @@
 window.API = {
-  API_URL: "https://script.google.com/macros/s/AKfycbynCR4cqsjnNChmKpuhv9oZ45H2Yw9OlLDH6AJr6xOyJY_1ZgOv9o6Mfa8Lfo5bx70G/exec",
+  API_URL: "API_URL: "https://script.google.com/macros/s/AKfycbwj3gUrdEgoviCw2MPaxgNPg0ZYYg_aDWE_LfcUNxaXsHCBejiAxg-f4yer7iAISuY/exec",
 
   async request(action, payload = {}) {
     const response = await fetch(this.API_URL, {
