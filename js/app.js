@@ -24,6 +24,7 @@ function bind() {
   $("periodoMes").addEventListener("change", e => { state.month = e.target.value; loadSummary(); });
   $("yearSelect").addEventListener("change", e => { state.year = +e.target.value; loadAnnual(); });
   $("refreshBtn").onclick = refreshActiveView;
+  $("logoutBtn").onclick = logout;
   $("menuBtn").onclick = () => $("sidebar").classList.toggle("open");
   $("modalClose").onclick = closeModal;
   $("overlay").onclick = closeAllModals;
@@ -67,6 +68,15 @@ function unlockApp() {
   $("loginScreen").classList.add("hidden");
   $("appShell").classList.remove("locked");
   loadSummary();
+}
+
+function logout() {
+  sessionStorage.removeItem("presupuesto_access");
+  $("passwordInput").value = "";
+  $("sidebar").classList.remove("open");
+  $("appShell").classList.add("locked");
+  $("loginScreen").classList.remove("hidden");
+  $("passwordInput").focus();
 }
 
 function fillYears() {
