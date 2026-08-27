@@ -13,10 +13,20 @@ document.addEventListener("DOMContentLoaded", () => {
   $("periodoMes").value = state.month;
   $("todayLabel").textContent = now.toLocaleDateString("es-CR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   fillYears();
+  setupGeneralBalanceCard();
   bind();
   setupHistoryFilters();
   initAccess();
 });
+
+function setupGeneralBalanceCard() {
+  const container = document.querySelector(".annual-kpis");
+  if (!container || $("generalBalanceCard")) return;
+  const card = document.createElement("article");
+  card.id = "generalBalanceCard";
+  card.innerHTML = '<span>Disponible acumulado general</span><strong id="generalBalance">₡0</strong>';
+  container.appendChild(card);
+}
 
 function bind() {
   document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => showView(b.dataset.view)));
@@ -165,6 +175,10 @@ function paintSummary(d) {
   setText("kpiCasa", money(t.pagosCasa));
   setText("kpiTransferencias", money(t.transferencias));
   setText("heroBalance", money(t.remanente));
+  setText("monthlyAvailable", money(t.remanente));
+  setText("totalAvailable", money(d.acumuladoGeneral.remanente));
+  $("monthlyAvailable").className = t.remanente >= 0 ? "positive" : "negative-text";
+  $("totalAvailable").className = d.acumuladoGeneral.remanente >= 0 ? "positive" : "negative-text";
   $("heroBalance").className = t.remanente >= 0 ? "positive" : "negative-text";
   $("heroMessage").textContent = t.remanente >= 0 ? "El mes mantiene un remanente positivo." : "Los gastos y ahorros superan los ingresos del mes.";
   $("dashboardView").querySelector(".hero").classList.toggle("negative", t.remanente < 0);
@@ -212,7 +226,9 @@ async function loadAnnual() {
     setText("annualIncome", money(d.totales.ingresos));
     setText("annualOut", money(d.totales.egresos));
     setText("annualBalance", money(d.totales.remanente));
+    setText("generalBalance", money(d.acumuladoGeneral.remanente));
     $("annualBalanceCard").className = d.totales.remanente >= 0 ? "good" : "bad";
+    $("generalBalanceCard").className = d.acumuladoGeneral.remanente >= 0 ? "good" : "bad";
     paintAnnualChart(d.meses);
     paintAnnualTrend(d.meses);
     paintAnnualDistribution([servicios,casa,transferencias,ahorros]);
