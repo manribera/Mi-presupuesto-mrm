@@ -1,8 +1,7 @@
 const state = {
   month: new Date().toISOString().slice(0, 7),
   year: new Date().getFullYear(),
-  summary: null,
-  general: null
+  summary: null
 };
 
 const $ = id => document.getElementById(id);
@@ -42,7 +41,8 @@ async function validatePassword(e) {
   btn.disabled = true;
   btn.textContent = "Validando...";
   try {
-    const result = await API.validarAcceso($("passwordInput").value);
+    if (!window.API) throw new Error("No se pudo cargar js/api.js");
+    const result = await window.API.validarAcceso($("passwordInput").value);
     if (!result.accesoActivo) {
       toast("El acceso está apagado desde Google Sheets", true);
       return;
@@ -109,11 +109,11 @@ async function loadHistory(name) {
   const year = document.querySelector(`[data-history-year="${name}"]`).value;
   const month = document.querySelector(`[data-history-month="${name}"]`).value;
   try {
-    const current = await API.request("obtenerHistorico", {tipo:type, anio:year, mes:month});
+    const current = await window.API.request("obtenerHistorico", {tipo:type, anio:year, mes:month});
     let previous = {total:0};
     if (month !== "TODOS") {
       const date = new Date(Number(year), Number(month)-2, 1);
-      previous = await API.request("obtenerHistorico", {tipo:type, anio:date.getFullYear(), mes:String(date.getMonth()+1).padStart(2,"0")});
+      previous = await window.API.request("obtenerHistorico", {tipo:type, anio:date.getFullYear(), mes:String(date.getMonth()+1).padStart(2,"0")});
     }
     renderHistory(name, current, previous, month);
   } catch (e) { toast(e.message,true); }
@@ -136,7 +136,7 @@ function refreshActiveView() {
 async function loadSummary() {
   loading(true);
   try {
-    const data = await API.resumen(state.month);
+    const data = await window.API.resumen(state.month);
     state.summary = data;
     paintSummary(data);
   } catch (e) {
@@ -190,36 +190,14 @@ function paintSection(prefix, rows, total) {
   $(prefix + "Table").innerHTML = rows.length ? '<table class="data-table"><thead><tr><th>Fecha</th><th>Concepto</th><th>Periodo</th><th>Método</th><th>Monto</th><th>Observaciones</th></tr></thead><tbody>' + rows.map(r => '<tr><td>' + esc(r.FECHA) + '</td><td><strong>' + esc(r.CONCEPTO) + '</strong></td><td>' + esc(r.FRECUENCIA) + '</td><td>' + esc(r.METODO) + '</td><td class="amount">' + money(r.MONTO) + '</td><td>' + esc(r.OBSERVACIONES || "-") + '</td></tr>').join("") + '</tbody></table>' : '<div class="empty">No hay registros para el mes seleccionado.</div>';
 }
 
-async function loadGeneral() {
-  loading(true);
-  try {
-    const d = await API.ingresoGeneral();
-    state.general = d;
-    paintGeneral(d);
-  } catch (e) {
-    toast(e.message, true);
-  } finally {
-    loading(false);
-  }
-}
-
-function paintGeneral(d) {
-  const rows = d.registros || [];
-  setText("generalActual", money(d.totales.actual));
-  setText("generalAumento", money(d.totales.aumento));
-  setText("generalPorcentaje", (d.totales.porcentaje || 0).toFixed(2) + "%");
-  $("generalPorcentaje").className = d.totales.porcentaje >= 0 ? "positive" : "negative-text";
-  $("generalTable").innerHTML = rows.length ? '<table class="data-table"><thead><tr><th>Fecha</th><th>Concepto</th><th>Anterior</th><th>Nuevo</th><th>Aumento</th><th>%</th><th>Observaciones</th></tr></thead><tbody>' + rows.map(r => '<tr><td>' + esc(r.FECHA) + '</td><td><strong>' + esc(r.CONCEPTO) + '</strong></td><td>' + money(r.MONTO_ANTERIOR) + '</td><td>' + money(r.MONTO_NUEVO) + '</td><td class="amount ' + (r.AUMENTO >= 0 ? "positive" : "negative-text") + '">' + money(r.AUMENTO) + '</td><td>' + Number(r.PORCENTAJE || 0).toFixed(2) + '%</td><td>' + esc(r.OBSERVACIONES || "-") + '</td></tr>').join("") + '</tbody></table>' : '<div class="empty">Aún no hay registros de ingreso general.</div>';
-}
-
 async function loadAnnual() {
   try {
     const [d, servicios, casa, transferencias, ahorros] = await Promise.all([
-      API.anual(state.year),
-      API.request("obtenerHistorico",{tipo:"SERVICIOS",anio:state.year,mes:"TODOS"}),
-      API.request("obtenerHistorico",{tipo:"PAGOS_CASA",anio:state.year,mes:"TODOS"}),
-      API.request("obtenerHistorico",{tipo:"TRANSFERENCIAS",anio:state.year,mes:"TODOS"}),
-      API.request("obtenerHistorico",{tipo:"AHORROS",anio:state.year,mes:"TODOS"})
+      window.API.anual(state.year),
+      window.API.request("obtenerHistorico",{tipo:"SERVICIOS",anio:state.year,mes:"TODOS"}),
+      window.API.request("obtenerHistorico",{tipo:"PAGOS_CASA",anio:state.year,mes:"TODOS"}),
+      window.API.request("obtenerHistorico",{tipo:"TRANSFERENCIAS",anio:state.year,mes:"TODOS"}),
+      window.API.request("obtenerHistorico",{tipo:"AHORROS",anio:state.year,mes:"TODOS"})
     ]);
     setText("annualIncome", money(d.totales.ingresos));
     setText("annualOut", money(d.totales.egresos));
@@ -284,26 +262,10 @@ function openModal(type) {
   $("modal").setAttribute("aria-hidden", "false");
 }
 
-function openGeneralModal() {
-  $("generalForm").reset();
-  $("generalDate").value = new Date().toISOString().slice(0, 10);
-  const latest = state.general && state.general.totales ? state.general.totales.actual : 0;
-  if (latest) $("generalBefore").value = latest;
-  $("generalModal").classList.add("open");
-  $("overlay").classList.add("open");
-  $("generalModal").setAttribute("aria-hidden", "false");
-}
-
 function closeModal() {
   $("modal").classList.remove("open");
   $("modal").setAttribute("aria-hidden", "true");
   $("overlay").classList.remove("open");
-}
-
-function closeGeneralModal() {
-  $("generalModal").classList.remove("open");
-  $("generalModal").setAttribute("aria-hidden", "true");
-  if (!$("modal").classList.contains("open")) $("overlay").classList.remove("open");
 }
 
 function closeAllModals() {
@@ -316,7 +278,7 @@ async function saveMovement(e) {
   btn.disabled = true;
   btn.textContent = "Guardando...";
   try {
-    await API.guardar($("movementType").value, {
+    await window.API.guardar($("movementType").value, {
       fecha: $("movementDate").value,
       concepto: $("movementConcept").value,
       monto: Number($("movementAmount").value),
@@ -336,30 +298,6 @@ async function saveMovement(e) {
   } finally {
     btn.disabled = false;
     btn.textContent = "Guardar movimiento";
-  }
-}
-
-async function saveGeneral(e) {
-  e.preventDefault();
-  const btn = $("saveGeneral");
-  btn.disabled = true;
-  btn.textContent = "Guardando...";
-  try {
-    await API.guardarIngresoGeneral({
-      fecha: $("generalDate").value,
-      concepto: $("generalConcept").value,
-      montoAnterior: Number($("generalBefore").value),
-      montoNuevo: Number($("generalAfter").value),
-      observaciones: $("generalNotes").value
-    });
-    closeGeneralModal();
-    await loadGeneral();
-    toast("Ingreso general guardado correctamente");
-  } catch (err) {
-    toast(err.message, true);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Guardar ingreso general";
   }
 }
 

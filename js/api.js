@@ -1,9 +1,9 @@
+// URL unica del backend. Ya no depende de config.js.
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyM5MYDbxRK_nFLRGemCJI4ISFokW4qEHqvMTfF7z3Uv9dzxQ8pD6pAfGa6a6gQIC32/exec";
+
 window.API = {
   async request(action, payload = {}) {
-    if (!window.CONFIG || !window.CONFIG.API_URL || window.CONFIG.API_URL.includes("PEGAR_AQUI")) {
-      throw new Error("Configura la URL de Apps Script en js/config.js");
-    }
-    const r = await fetch(window.CONFIG.API_URL, {
+    const r = await fetch(APPS_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ action, ...payload })
@@ -21,12 +21,6 @@ window.API = {
   },
   historico(tipo, anio, mes) {
     return this.request("obtenerHistorico", { tipo, anio, mes });
-  },
-  ingresoGeneral() {
-    return this.request("obtenerIngresoGeneral");
-  },
-  guardarIngresoGeneral(registro) {
-    return this.request("guardarIngresoGeneral", { registro });
   },
   validarAcceso(password) {
     return this.request("validarAcceso", { password });
