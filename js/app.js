@@ -80,7 +80,6 @@ function bind() {
     $("sidebar").classList.toggle("open");
 
   $("modalClose").onclick = closeModal;
-  $("generalClose").onclick = closeGeneralModal;
   $("overlay").onclick = closeAllModals;
 
   $("movementForm").addEventListener(
@@ -88,12 +87,6 @@ function bind() {
     saveMovement
   );
 
-  $("generalForm").addEventListener(
-    "submit",
-    saveGeneral
-  );
-
-  $("addGeneralBtn").onclick = openGeneralModal;
 
   $("loginForm").addEventListener(
     "submit",
