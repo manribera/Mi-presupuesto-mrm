@@ -1,6 +1,6 @@
 window.API = {
   async request(action, payload = {}) {
-    if (!window.CONFIG || !window.CONFIG.API_URL || window.CONFIG.API_URL.includes(https://script.google.com/macros/s/AKfycbwgi8ifo_qjV9DLkpd1E4WyZp4Fs08Kp6OhsPp3W740Whj38b_Yo4xiVAKxUllEj735/exec)) {
+    if (!window.CONFIG || !window.CONFIG.API_URL || window.CONFIG.API_URL.includes"https://script.google.com/macros/s/AKfycbwgi8ifo_qjV9DLkpd1E4WyZp4Fs08Kp6OhsPp3W740Whj38b_Yo4xiVAKxUllEj735/exec" {
       throw new Error("Configura la URL de Apps Script en js/config.js");
     }
     const r = await fetch(window.CONFIG.API_URL, {
