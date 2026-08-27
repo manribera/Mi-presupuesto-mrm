@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/styles.css">
   <style>
   .history-filters{display:grid;grid-template-columns:repeat(2,minmax(150px,220px)) auto 1fr;gap:12px;align-items:end;margin:0 0 18px;padding:16px;background:#fff;border:1px solid #e4eaf2;border-radius:16px;box-shadow:0 10px 30px rgba(22,36,58,.08)}.history-filters label{display:grid;gap:6px;font-size:.78rem;font-weight:800;color:#526174;text-transform:uppercase}.history-filters select{margin:0}.history-compare{display:grid;justify-content:end;text-align:right;gap:3px}.history-compare span{font-size:.75rem;color:#718096}.trend-chart{height:270px;display:grid;grid-template-columns:repeat(12,1fr);gap:8px;align-items:end;padding:18px 8px;overflow-x:auto}.trend-item{height:220px;min-width:54px;display:grid;grid-template-rows:18px 1fr 34px;gap:5px;text-align:center;font-size:.7rem}.trend-axis{height:150px;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #e4eaf2}.trend-axis i{display:block;width:18px;border-radius:8px 8px 2px 2px;min-height:4px}.trend-axis i.up{background:linear-gradient(#21a179,#65d6ad)}.trend-axis i.down{background:linear-gradient(#df5f67,#f3a1a6)}.trend-item strong{font-size:.68rem}.secondary{border:1px solid #e4eaf2;background:#fff;color:#18365f;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}@media(max-width:760px){.history-filters{grid-template-columns:1fr 1fr}.history-compare{grid-column:1/-1;justify-content:start;text-align:left}.trend-chart{grid-template-columns:repeat(12,58px)}}
+  .logout-btn{margin-top:auto;margin-bottom:12px;width:100%;border:1px solid #ffffff24;background:#ffffff0d;color:#dbe7f5;padding:12px 15px;border-radius:12px;text-align:left;font-size:14px;font-weight:700;cursor:pointer;transition:.2s}.logout-btn span{display:inline-block;width:27px;font-size:18px}.logout-btn:hover{background:#d94a5925;border-color:#ff8290;color:#fff;transform:translateX(2px)}.sidebar-note{margin-top:0}
   </style>
 </head>
 <body>
@@ -43,6 +44,7 @@
       <button class="nav-btn" data-view="ahorros"><span>◇</span> Ahorros</button>
       <button class="nav-btn" data-view="anual"><span>▥</span> Balance anual</button>
     </nav>
+    <button id="logoutBtn" class="logout-btn" type="button"><span>↪</span> Cerrar sesión</button>
     <div class="sidebar-note"><small>Datos sincronizados con</small><strong>Google Sheets</strong></div>
   </aside>
 
@@ -83,7 +85,7 @@
 <div id="modal" class="modal" aria-hidden="true"><div class="modal-card"><button id="modalClose" class="modal-close">×</button><span class="eyebrow">NUEVO REGISTRO</span><h2 id="modalTitle">Registrar movimiento</h2><form id="movementForm"><input id="movementType" type="hidden"><div class="form-grid"><label>Fecha<input id="movementDate" type="date" required></label><label>Periodo<select id="movementFrequency"></select></label><label>Categoría<select id="movementCategory"></select></label><label id="destinationField" hidden>Destinatario<input id="movementDestination" type="text" placeholder="Persona o entidad"></label><label class="full">Concepto<input id="movementConcept" type="text" required placeholder="Detalle del movimiento"></label><label>Monto (₡)<input id="movementAmount" type="number" min="0" step="1" required></label><label>Método<select id="movementMethod"><option>Efectivo</option><option>Transferencia bancaria</option><option>SINPE Móvil</option><option>Tarjeta</option><option>Débito automático</option><option>Otro</option></select></label><label class="full">Observaciones<textarea id="movementNotes" rows="3" placeholder="Opcional"></textarea></label></div><button id="saveMovement" class="primary full-btn" type="submit">Guardar movimiento</button></form></div></div>
 <div id="overlay" class="overlay"></div>
 
-<script src="js/api.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/api.js?v=11"></script>
+<script src="js/app.js?v=11"></script>
 </body>
 </html>
